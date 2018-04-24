@@ -5,8 +5,7 @@ import getopt, sys
 
 # import rcpy library
 # This automatically initizalizes the robotics cape
-import rcpy 
-import rcpy.mpu9250 as mpu9250
+import rcmpupy as mpu9250
 
 def usage():
     print("""usage: python rcpy_test_imu [options] ...
@@ -38,9 +37,6 @@ def main():
         else:
             assert False, "Unhandled option"
 
-    # set state to rcpy.RUNNING
-    rcpy.set_state(rcpy.RUNNING)
-
     # no magnetometer
     mpu9250.initialize(enable_magnetometer = enable_magnetometer)
 
@@ -60,28 +56,25 @@ def main():
         # keep running
         while True:
 
-            # running
-            if rcpy.get_state() == rcpy.RUNNING:
+            temp = mpu9250.read_imu_temp()
+            data = mpu9250.read()
                 
-                temp = mpu9250.read_imu_temp()
-                data = mpu9250.read()
-                
-                if enable_magnetometer:
-                    print(('\r{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
-                           '{1[0]:6.1f} {1[1]:6.1f} {1[2]:6.1f} |'
-                           '{2[0]:6.1f} {2[1]:6.1f} {2[2]:6.1f} |'
-                           '   {3:6.1f}').format(data['accel'],
-                                                 data['gyro'],
-                                                 data['mag'],
-                                                 temp),
-                          end='')
-                else:
-                    print(('\r{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
-                           '{1[0]:6.1f} {1[1]:6.1f} {1[2]:6.1f} |'
-                           '   {2:6.1f}').format(data['accel'],
-                                                 data['gyro'],
-                                                 temp),
-                          end='')
+            if enable_magnetometer:
+                print(('\r{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
+                       '{1[0]:6.1f} {1[1]:6.1f} {1[2]:6.1f} |'
+                       '{2[0]:6.1f} {2[1]:6.1f} {2[2]:6.1f} |'
+                       '   {3:6.1f}').format(data['accel'],
+                                             data['gyro'],
+                                             data['mag'],
+                                             temp),
+                      end='')
+            else:
+                print(('\r{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
+                       '{1[0]:6.1f} {1[1]:6.1f} {1[2]:6.1f} |'
+                       '   {2:6.1f}').format(data['accel'],
+                                             data['gyro'],
+                                             temp),
+                      end='')
                         
             # sleep some
             time.sleep(.5)

@@ -5,8 +5,7 @@ import getopt, sys
 
 # import rcpy library
 # This automatically initizalizes the robotics cape
-import rcpy 
-import rcpy.mpu9250 as mpu9250
+import rcmpupy as mpu9250
 
 def usage():
     print("""usage: python rcpy_test_dmp [options] ...
@@ -21,6 +20,7 @@ Options are:
 -q          Print quaternion vector
 -f          Print fused data
 -n          Newline (default = '\r')
+-i          GPIO interrupt pin
 -o          Show a menu to select IMU orientation
 -h          print this help message""")
 
@@ -42,6 +42,7 @@ def main():
         sys.exit(2)
 
     # defaults
+    gpio_interrupt_pin = 77
     enable_magnetometer = False
     show_compass = False
     show_gyro = False
@@ -75,6 +76,8 @@ def main():
             enable_fusion = True
         elif o == "-p":
             show_period = True
+        elif o == "-i":
+            gpio_interrupt_pin = int(a)
         elif o == "-n":
             newline = a
         else:
@@ -85,11 +88,9 @@ def main():
         usage()
         sys.exit(2)
             
-    # set state to rcpy.RUNNING
-    rcpy.set_state(rcpy.RUNNING)
-
     # magnetometer ?
-    mpu9250.initialize(enable_dmp = True,
+    mpu9250.initialize(gpio_interrupt_pin = gpio_interrupt_pin,
+                       enable_dmp = True,
                        dmp_sample_rate = sample_rate,
                        enable_fusion = enable_fusion,
                        enable_magnetometer = enable_magnetometer)
@@ -118,37 +119,34 @@ def main():
         # keep running
         while True:
 
-            # running
-            if rcpy.get_state() == rcpy.RUNNING:
-                
-                t0 = time.perf_counter()
-                data = mpu9250.read()
-                t1 = time.perf_counter()
-                dt = t1 - t0
-                t0 = t1
+            t0 = time.perf_counter()
+            data = mpu9250.read()
+            t1 = time.perf_counter()
+            dt = t1 - t0
+            t0 = t1
 
-                print(newline, end='')
-                if show_accel:
-                    print('{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
-                          .format(data['accel']), end='')
-                if show_gyro:
-                    print('{0[0]:6.1f} {0[1]:6.1f} {0[2]:6.1f} |'
-                          .format(data['gyro']), end='')
-                if show_compass:
-                    print('{0[0]:7.1f} {0[1]:7.1f} {0[2]:7.1f} |'
-                          .format(data['mag']), end='')
-                    print('  {:6.2f} |'
-                          .format(data['head']), end='')
-                if show_quat:
-                    print('{0[0]:6.1f} {0[1]:6.1f} {0[2]:6.1f} {0[3]:6.1f} |'
-                          .format(data['quat']), end='')
-                if show_tb:
-                    print('{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
-                          .format(data['tb']), end='')
-                if show_period:
-                    print(' {:7.2f}'.format(1000*dt), end='')
-                        
-                # no need to sleep
+            print(newline, end='')
+            if show_accel:
+                print('{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
+                      .format(data['accel']), end='')
+            if show_gyro:
+                print('{0[0]:6.1f} {0[1]:6.1f} {0[2]:6.1f} |'
+                      .format(data['gyro']), end='')
+            if show_compass:
+                print('{0[0]:7.1f} {0[1]:7.1f} {0[2]:7.1f} |'
+                      .format(data['mag']), end='')
+                print('  {:6.2f} |'
+                      .format(data['head']), end='')
+            if show_quat:
+                print('{0[0]:6.1f} {0[1]:6.1f} {0[2]:6.1f} {0[3]:6.1f} |'
+                      .format(data['quat']), end='')
+            if show_tb:
+                print('{0[0]:6.2f} {0[1]:6.2f} {0[2]:6.2f} |'
+                      .format(data['tb']), end='')
+            if show_period:
+                print(' {:7.2f}'.format(1000*dt), end='')
+
+            # no need to sleep
 
     except KeyboardInterrupt:
         # Catch Ctrl-C
