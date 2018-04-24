@@ -1,41 +1,19 @@
 from setuptools import setup, Extension, find_packages
 import platform
 
-LIBS = ['roboticscape']
+LIBS = ['rcmpu']
+# LIBRARY_DIRS = ['./rc_mpu/bin']
+# INCLUDE_DIRS = ['./rc_mpu/include']
+LIBRARY_DIRS = []
+INCLUDE_DIRS = []
 if platform.system().lower() == 'linux':
     LIBS.append('rt')
 
-_rcpy = Extension("rcpy._rcpy",
-               sources = ["src/_rcpy.c"],
-               libraries = LIBS)
-
-_adc = Extension("rcpy._adc",
-               sources = ["src/_adc.c"],
-               libraries = LIBS)
-
-_mpu9250 = Extension("rcpy._mpu9250",
+_mpu9250 = Extension("rcmpupy._mpu9250",
                      sources = ["src/_mpu9250.c"],
-                     libraries = LIBS)
-
-_encoder = Extension("rcpy._encoder",
-                     sources = ["src/_encoder.c"],
-                     libraries = LIBS)
-
-_gpio = Extension("rcpy._gpio",
-                  sources = ["src/_gpio.c"],
-                  libraries = LIBS)
-
-_gpio_mmap = Extension("rcpy._gpio_mmap",
-                       sources = ["src/_gpio_mmap.c"],
-                       libraries = LIBS)
-
-_motor = Extension("rcpy._motor",
-                   sources = ["src/_motor.c"],
-                   libraries = LIBS)
-
-_servo = Extension("rcpy._servo",
-                   sources = ["src/_servo.c"],
-                   libraries = LIBS)
+                     libraries = LIBS,
+                     library_dirs = LIBRARY_DIRS,
+                     include_dirs = INCLUDE_DIRS)
 
 def readme():
     with open('README.rst') as f:
@@ -43,30 +21,26 @@ def readme():
 
 setup(
 
-    name="rcpy",
-    version="0.4.0",
+    name="rcmpu",
+    version="0.1.0",
     packages=find_packages(),
     python_requires='>=3.4',
 
     # extensions
-    ext_modules=[_rcpy,
-                 _adc,
-                 _mpu9250,
-                 _encoder, _motor, _servo,
-                 _gpio, _gpio_mmap],
+    ext_modules=[_mpu9250],
 
     # metadata
     author = "Mauricio C. de Oliveira",
     author_email = "mauricio@ucsd.edu",
 
-    description = "Python Library for Robotics Cape on Beaglebone Black and Beaglebone Blue",
+    description = "Python Library for MPU-925X on Beaglebone Black and Beaglebone Blue",
     long_description=readme(),
     license = "MIT",
 
-    keywords= ["Robotics Cape", "Beaglebone Black", "Beaglebone Blue"],
+    keywords= ["MPU-925X", "Beaglebone Black", "Beaglebone Blue"],
 
-    url = "https://github.com/mcdeoliveira/rcpy",
-    download_url = "https://github.com/mcdeoliveira/rcpy/archive/0.4.tar.gz",
+    url = "https://github.com/mcdeoliveira/rcmpupy",
+    download_url = "https://github.com/mcdeoliveira/rcmpupy/archive/0.1.tar.gz",
 
     classifiers=[
         'Development Status :: 3 - Alpha',
