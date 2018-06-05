@@ -19,8 +19,9 @@ Options are:
 -t          Print Tait-Bryan angles
 -q          Print quaternion vector
 -f          Print fused data
--n          Newline (default = '\r')
+-n          Newline (default = '\\r')
 -i          GPIO interrupt pin
+-b          I2C bus number
 -o          Show a menu to select IMU orientation
 -h          print this help message""")
 
@@ -33,7 +34,7 @@ def main():
 
     # Parse command line
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hmpcagtqfos:", ["help"])
+        opts, args = getopt.getopt(sys.argv[1:], "hmpcagtqfos:i:b:", ["help"])
 
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -42,7 +43,8 @@ def main():
         sys.exit(2)
 
     # defaults
-    gpio_interrupt_pin = 77
+    i2c_bus = 1
+    gpio_interrupt_pin = 4
     enable_magnetometer = False
     show_compass = False
     show_gyro = False
@@ -78,6 +80,8 @@ def main():
             show_period = True
         elif o == "-i":
             gpio_interrupt_pin = int(a)
+        elif o == "-b":
+            i2c_bus = int(a)
         elif o == "-n":
             newline = a
         else:
@@ -89,7 +93,8 @@ def main():
         sys.exit(2)
             
     # magnetometer ?
-    mpu9250.initialize(gpio_interrupt_pin = gpio_interrupt_pin,
+    mpu9250.initialize(i2c_bus = i2c_bus,
+                       gpio_interrupt_pin = gpio_interrupt_pin,
                        enable_dmp = True,
                        dmp_sample_rate = sample_rate,
                        enable_fusion = enable_fusion,
